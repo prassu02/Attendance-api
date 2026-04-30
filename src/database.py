@@ -2,11 +2,15 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# 🔥 Fix for PostgreSQL on Render
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+    pool_pre_ping=True  # avoids connection crashes
 )
 
 SessionLocal = sessionmaker(bind=engine)
