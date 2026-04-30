@@ -1,26 +1,26 @@
 from fastapi import APIRouter, HTTPException, Request
-from jose import jwt
+from src.auth import create_token
 
 router = APIRouter()
 
-SECRET_KEY = "secret"
+API_KEY = "MY_SECRET_KEY"
 
-def verify(request: Request):
-    token = request.headers.get("Authorization")
-    if not token:
-        raise HTTPException(status_code=401)
+@router.post("/auth/monitoring-token")
+def monitoring_token(request: Request, key: str):
+    user = request.state.user
+    if user["role"] != "monitoring_officer":
+        raise HTTPException(403)
 
-    token = token.split(" ")[1]
-    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    if key != API_KEY:
+        raise HTTPException(401)
 
-    if payload.get("role") != "monitoring":
-        raise HTTPException(status_code=401)
+    return {"token": create_token({"role": "monitoring"}, 1)}
 
 @router.get("/monitoring/attendance")
-def get_data(request: Request):
-    verify(request)
-    return {"data": "monitoring"}
+def get_monitoring(request: Request):
+    user = require(["monitoring"])(request)
+    return {"data": "readonly"}
 
 @router.post("/monitoring/attendance")
-def blocked():
-    raise HTTPException(status_code=405)
+def block():
+    raise HTTPException(405)
