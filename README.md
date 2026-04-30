@@ -7,7 +7,8 @@ Backend API for a fictional state-level skilling programme **SkillBridge**, supp
 # 🌐 Live API
 
 ```bash
-https://your-api.onrender.com
+https://attendance-api-10.onrender.com
+https://attendance-api-10.onrender.com/docs
 ```
 
 ---
