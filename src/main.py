@@ -1,10 +1,14 @@
+print("App starting...")
+
 from fastapi import FastAPI
-from .database import Base,engine
-from .routes import auth,batches,sessions,attendance,summaries,monitoring
+from src.database import Base, engine
+from src.routes import auth, batches, sessions, attendance, summaries, monitoring
 
-Base.metadata.create_all(bind=engine)
+app = FastAPI()
 
-app=FastAPI()
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
 app.include_router(batches.router)
