@@ -1,16 +1,16 @@
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer
-from .auth import decode_token
+from jose import jwt
 
-security=HTTPBearer()
+def get_current_user(token: str):
+    try:
+        payload = jwt.decode(token, "secret", algorithms=["HS256"])
+        return payload
+    except:
+        raise HTTPException(status_code=401)
 
-def get_user(token=Depends(security)):
-    try: return decode_token(token.credentials)
-    except: raise HTTPException(401)
-
-def role_required(roles):
-    def check(user=Depends(get_user)):
+def role_required(roles: list):
+    def wrapper(user=Depends(get_current_user)):
         if user["role"] not in roles:
-            raise HTTPException(403)
+            raise HTTPException(status_code=403)
         return user
-    return check
+    return wrapper
